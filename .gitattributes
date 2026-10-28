@@ -1,0 +1,6 @@
+# 保证 Linux 容器内脚本/配置为 LF（Windows 检出时不被 CRLF 污染）
+* text=auto eol=lf
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.conf text eol=lf
+*.yml text eol=lf

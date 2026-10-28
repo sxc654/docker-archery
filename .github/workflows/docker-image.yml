@@ -1,0 +1,90 @@
+name: docker-image
+
+# 版本目录（`<版本>/Dockerfile`）= 一个可构建镜像，tag 推导为 sxc654/docker-archery:<目录名>
+# 新增版本只建目录 + push，本 workflow 零改动；手动触发可用 targets 指定目录。
+on:
+  push:
+    branches: [master]
+    paths:
+      - '*/**'
+      - '.github/workflows/docker-image.yml'
+  workflow_dispatch:
+    inputs:
+      targets:
+        description: '空格分隔的版本目录（如 1.14），留空 = 全部'
+        required: false
+        default: ''
+
+env:
+  IMAGE: sxc654/docker-archery
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      has_work: ${{ steps.discover.outputs.has_work }}
+      matrix: ${{ steps.discover.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: discover
+        env:
+          TARGETS: ${{ github.event.inputs.targets }}
+        run: |
+          set -euo pipefail
+          if [ -n "${TARGETS:-}" ]; then
+            dirs=$(printf '%s\n' $TARGETS)
+          else
+            dirs=$(find . -mindepth 2 -maxdepth 2 -name Dockerfile -printf '%h\n' | sed 's|^\./||' | sort)
+          fi
+
+          entries=""
+          for d in $dirs; do
+            if [ ! -f "$d/Dockerfile" ]; then
+              echo "skip: $d (no Dockerfile)"
+              continue
+            fi
+            entries="${entries}${d},$(basename "$d")\n"
+          done
+
+          matrix=$(printf '%b' "$entries" \
+            | jq -R -s -c 'split("\n") | map(select(length > 0)) | map(split(",") | {dir: .[0], tag: .[1]})')
+          count=$(jq 'length' <<<"$matrix")
+          echo "matrix={\"include\":$matrix}" >> "$GITHUB_OUTPUT"
+          echo "has_work=$([ "$count" -gt 0 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "targets: $matrix"
+
+  build:
+    needs: setup
+    if: needs.setup.outputs.has_work == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.setup.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push ${{ matrix.dir }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.dir }}
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:${{ matrix.tag }}
+            ${{ env.IMAGE }}:latest
+          cache-from: type=gha,scope=archery-${{ matrix.tag }}
+          cache-to: type=gha,mode=max,scope=archery-${{ matrix.tag }}
+          labels: |
+            org.opencontainers.image.title=Archery
+            org.opencontainers.image.description=SQL 审核查询平台（gunicorn + qcluster，无 nginx）
+            org.opencontainers.image.source=https://github.com/hhyo/Archery
+            org.opencontainers.image.version=${{ matrix.tag }}
+            org.opencontainers.image.licenses=Apache-2.0
