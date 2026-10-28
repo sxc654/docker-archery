@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-# sxc654/docker-archery:1.14 —— Archery（SQL 审核查询平台）v1.14.0 应用镜像
+# sxc654/archery:1.14 —— Archery（SQL 审核查询平台）v1.14.0 应用镜像
 #
 # 定位：只跑应用进程（gunicorn + django-q qcluster），不含 nginx、不含数据库。
 #   nginx 由部署侧独立容器提供（见 docker-archery 部署仓），静态文件走共享卷：

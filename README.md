@@ -1,14 +1,14 @@
 # docker-archery
 
 [Archery](https://github.com/hhyo/Archery)（SQL 审核查询平台）的**应用镜像**仓库：
-**一个版本子目录 = 一个镜像**，tag 推导为 `sxc654/docker-archery:<目录名>`（GitHub Actions 构建推 Docker Hub）。
+**一个版本子目录 = 一个镜像**，tag 推导为 `sxc654/archery:<目录名>`（GitHub Actions 构建推 Docker Hub）。
 
 镜像里**只有应用进程**：gunicorn（0.0.0.0:8888）+ django-q `qcluster`，不含 nginx、不含数据库。
 nginx 与 MySQL/Redis 由部署侧（本工作区 `docker-archery/` 的 compose）提供，静态文件走共享卷。
 
 | 目录 | 上游版本 | Docker Hub tag | 内容 |
 |---|---|---|---|
-| [`1.14/`](1.14/README.md) | Archery v1.14.0 | `sxc654/docker-archery:1.14` | gunicorn + qcluster（supervisord 托管），内置 SOAR / SQLAdvisor / my2sql / Oracle·MSSQL·Mongo 客户端 |
+| [`1.14/`](1.14/README.md) | Archery v1.14.0 | `sxc654/archery:1.14` | gunicorn + qcluster（supervisord 托管），内置 SOAR / SQLAdvisor / my2sql / Oracle·MSSQL·Mongo 客户端 |
 
 ## 目录
 
@@ -26,7 +26,7 @@ nginx 与 MySQL/Redis 由部署侧（本工作区 `docker-archery/` 的 compose�
 
 ```bash
 cd 1.14
-docker build -t sxc654/docker-archery:1.14 .
+docker build -t sxc654/archery:1.14 .
 docker build --check .          # 静态检查，零警告
 ```
 
@@ -39,7 +39,7 @@ Percona 的下载源；正式构建在 GitHub Actions（美区直连）完成，
 ## 发布
 
 push `master` 后 `.github/workflows/docker-image.yml` 动态发现 `*/Dockerfile`，
-按 `sxc654/docker-archery:<目录名>` + `:latest` 推送；需仓库级 Secrets
+按 `sxc654/archery:<目录名>` + `:latest` 推送；需仓库级 Secrets
 `DOCKERHUB_USERNAME` / `DOCKERHUB_TOKEN`。新增版本只建目录 + push，workflow 零改动；
 手动触发可用 `targets` 指定目录。
 

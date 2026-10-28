@@ -39,7 +39,7 @@ Archery v1.14.0 应用镜像：supervisord 作 PID 1，托管 gunicorn（0.0.0.0
 ## 构建
 
 ```bash
-docker build -t sxc654/docker-archery:1.14 .
+docker build -t sxc654/archery:1.14 .
 docker build --check .
 ```
 
@@ -52,11 +52,11 @@ Percona 的下载源；正式构建在 GitHub Actions 完成。
 
 ```bash
 # 依赖/插件/入口自检（构建期已跑，可复跑）
-docker run --rm --entrypoint bash sxc654/docker-archery:1.14 -c \
+docker run --rm --entrypoint bash sxc654/archery:1.14 -c \
   '/opt/venv4archery/bin/python -c "import django, MySQLdb, ldap, pyodbc, cx_Oracle, gunicorn, redis, supervisor" && ls -l /opt/archery/src/plugins/{soar,sqladvisor,my2sql}'
 
 # 缺必需环境变量时应立即失败（预期非 0 退出）
-docker run --rm sxc654/docker-archery:1.14
+docker run --rm sxc654/archery:1.14
 ```
 
 完整链路（MySQL/Redis/nginx）见部署仓 `docker-archery/docker-compose.yml`。
@@ -76,4 +76,4 @@ docker run --rm sxc654/docker-archery:1.14
 - [ ] CI 实构建通过（含构建期自检）
 - [ ] 部署仓 compose 起来后 `/login/` 200、`docker logs` 有 gunicorn/qcluster 输出
 - [ ] `manage.py migrate` + 初始数据成功，`supervisorctl` 两进程 RUNNING
-- [ ] 推送后 `docker pull sxc654/docker-archery:1.14` 复跑
+- [ ] 推送后 `docker pull sxc654/archery:1.14` 复跑

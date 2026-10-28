@@ -1,6 +1,6 @@
 name: docker-image
 
-# 版本目录（`<版本>/Dockerfile`）= 一个可构建镜像，tag 推导为 sxc654/docker-archery:<目录名>
+# 版本目录（`<版本>/Dockerfile`）= 一个可构建镜像，tag 推导为 sxc654/archery:<目录名>
 # 新增版本只建目录 + push，本 workflow 零改动；手动触发可用 targets 指定目录。
 on:
   push:
@@ -16,7 +16,7 @@ on:
         default: ''
 
 env:
-  IMAGE: sxc654/docker-archery
+  IMAGE: sxc654/archery
 
 jobs:
   setup:
