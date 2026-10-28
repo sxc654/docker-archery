@@ -72,8 +72,8 @@ docker run --rm sxc654/archery:1.14
 
 ## 验证记录
 
-- [ ] `docker build --check .` 零警告
-- [ ] CI 实构建通过（含构建期自检）
-- [ ] 部署仓 compose 起来后 `/login/` 200、`docker logs` 有 gunicorn/qcluster 输出
-- [ ] `manage.py migrate` + 初始数据成功，`supervisorctl` 两进程 RUNNING
+- [x] `docker build --check .` 零警告
+- [x] CI 实构建通过（含构建期自检，run#2/#3）
+- [x] 部署仓 compose 起服务后 `/login/` 200、静态文件 200、`docker logs` 有 gunicorn/qcluster 输出
+- [x] `manage.py migrate` + 初始数据成功（45 张表，utf8mb4），supervisord 两进程 RUNNING
 - [ ] 推送后 `docker pull sxc654/archery:1.14` 复跑
